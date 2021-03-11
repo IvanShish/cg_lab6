@@ -164,9 +164,16 @@ public class MainWindow extends JFrame {
         buttonsPanel.add(new JLabel("Поворот камеры по z"));
         buttonsPanel.add(camZTurnSlider);
 
-        JSlider lightCoeffSlider = new JSlider(0, 50, 0);
+        JCheckBox isLightOnCheckBox = new JCheckBox("Использовать освещение");
+        isLightOnCheckBox.addChangeListener(e -> {
+            eventsListener.setLightOn(isLightOnCheckBox.isSelected());
+            gljpanel.display();
+        });
+        buttonsPanel.add(isLightOnCheckBox);
+
+        JSlider lightCoeffSlider = new JSlider(-200, 500, 0);
         lightCoeffSlider.addChangeListener(e -> {
-            eventsListener.setLightCoeff(lightCoeffSlider.getValue());
+            eventsListener.setLightCoeff(lightCoeffSlider.getValue()/100);
             gljpanel.display();
         });
         buttonsPanel.add(new JLabel("Интенсивность освещения"));
