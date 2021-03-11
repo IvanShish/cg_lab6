@@ -60,7 +60,7 @@ public class MainWindow extends JFrame {
         });
         buttonsPanel.add(isVisibleCheckBox);
 
-        JSlider stepSizeSlider = new JSlider(1, 1000, 10);
+        JSlider stepSizeSlider = new JSlider(1, 1000, 1);
         stepSizeSlider.addChangeListener((e)-> {
             eventsListener.setStep(stepSizeSlider.getValue() / 10000f);
             gljpanel.display();
