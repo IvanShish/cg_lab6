@@ -19,8 +19,8 @@ public class MainWindow extends JFrame {
         GLProfile profile = GLProfile.get(GLProfile.GL2);
         GLCapabilities capabilities = new GLCapabilities(profile);
         GLJPanel gljpanel = new GLJPanel(capabilities);
-        MainGLEventsListener evensListener = new MainGLEventsListener();
-        gljpanel.addGLEventListener(evensListener);
+        MainGLEventsListener eventsListener = new MainGLEventsListener();
+        gljpanel.addGLEventListener(eventsListener);
         gljpanel.setSize(750, 750);
         grid.add(gljpanel);
 
@@ -34,15 +34,15 @@ public class MainWindow extends JFrame {
         JSlider yTurnSlider = new JSlider(-180, 180, 0);
         JSlider zTurnSlider = new JSlider(-180, 180, 0);
         xTurnSlider.addChangeListener((e) -> {
-            evensListener.setxTurnCur(xTurnSlider.getValue());
+            eventsListener.setXTurnCur(xTurnSlider.getValue());
             gljpanel.display();
         });
         yTurnSlider.addChangeListener((e) -> {
-            evensListener.setyTurnCur(yTurnSlider.getValue());
+            eventsListener.setYTurnCur(yTurnSlider.getValue());
             gljpanel.display();
         });
         zTurnSlider.addChangeListener((e) -> {
-            evensListener.setzTurnCur(zTurnSlider.getValue());
+            eventsListener.setZTurnCur(zTurnSlider.getValue());
             gljpanel.display();
         });
         buttonsPanel.add(new JLabel("Вращение по оси x"));
@@ -51,6 +51,23 @@ public class MainWindow extends JFrame {
         buttonsPanel.add(yTurnSlider);
         buttonsPanel.add(new JLabel("Вращение по оси z"));
         buttonsPanel.add(zTurnSlider);
+
+        JCheckBox isVisibleCheckBox = new JCheckBox("Прорисовка невидимых граней");
+        isVisibleCheckBox.setSelected(false);
+        isVisibleCheckBox.addChangeListener((e) -> {
+            eventsListener.setDepthTestOn(!isVisibleCheckBox.isSelected());
+            gljpanel.display();
+        });
+        buttonsPanel.add(isVisibleCheckBox);
+
+        JSlider stepSizeSlider = new JSlider(1, 1000, 10);
+        stepSizeSlider.addChangeListener((e)-> {
+            eventsListener.setStep(stepSizeSlider.getValue() / 10000f);
+            gljpanel.display();
+        });
+        buttonsPanel.add(new JLabel("Мелкость разбиения"));
+        buttonsPanel.add(stepSizeSlider);
+
         buttonsPanel.add(Box.createHorizontalStrut(5));
 
         this.getContentPane().add(grid);

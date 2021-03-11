@@ -8,4 +8,13 @@ public class Point {
         this.y = y;
         this.z = z;
     }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
 }
