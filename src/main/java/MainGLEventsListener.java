@@ -3,6 +3,8 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 
+import java.nio.FloatBuffer;
+
 
 public class MainGLEventsListener implements GLEventListener {
 
@@ -14,20 +16,31 @@ public class MainGLEventsListener implements GLEventListener {
     private Point[] doorstepPoints;
     private Point[][] stringsPoints;
 
-    private int xTurnPrev;
-    private int xTurnCur;
-    private int yTurnPrev;
-    private int yTurnCur;
-    private int zTurnPrev;
-    private int zTurnCur;
-
-    private boolean isDepthTestOn = true;
-
     private double step = 0.0001;
+    private boolean isDepthTestOn = true;
+    private float lightCoeff;
 
-    private float kConst = 1;
-    private float kLinear = 0;
-    private float kQuadr = 0;
+    private int xTurnCur;
+    private int yTurnCur;
+    private int zTurnCur;
+    private double xPoz;
+    private double yPos;
+    private double zPos;
+    private double xScale = 1;
+    private double yScale = 1;
+    private double zScale = 1;
+
+    private double camXPos;
+    private double camYPos;
+    private double camZPos;
+    private double camXTurn;
+    private double camYTurn;
+    private double camZTurn;
+
+
+
+
+    private boolean needCoords = false;
 
     public void init(GLAutoDrawable glAutoDrawable) {
         allBodyPoints = new Point[]{new Point(-0.3, -1, 0), new Point(0.3, -1, 0), new Point(0.4, -0.8, 0), new Point(0.4, -0.6, 0),
@@ -62,6 +75,9 @@ public class MainGLEventsListener implements GLEventListener {
 
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
+
+        gl.glLoadIdentity();
+
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         if (isDepthTestOn) {
             gl.glEnable(GL2.GL_DEPTH_TEST);
@@ -69,21 +85,29 @@ public class MainGLEventsListener implements GLEventListener {
             gl.glDisable(GL2.GL_DEPTH_TEST);
         }
 
-        gl.glEnable(GL2.GL_LIGHTING);
-        gl.glEnable(GL2.GL_LIGHT0);
-        gl.glEnable(GL2.GL_COLOR_MATERIAL);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, new float[]{0f, 0f, -1f, 0f}, 0);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, kConst);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, kLinear);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, kQuadr);
+        //Поворот и движение камеры
+        gl.glRotated(camXTurn, 1, 0, 0);
+        gl.glRotated(camYTurn, 0, 1, 0);
+        gl.glRotated(camZTurn, 0, 0, 1);
+        gl.glTranslated(camXPos, camYPos, camZPos);
 
+//        gl.glEnable(GL2.GL_LIGHTING);
+//        gl.glEnable(GL2.GL_LIGHT0);
+//        gl.glEnable(GL2.GL_COLOR_MATERIAL);
+//        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 90.0f);
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{0f, 0f, -1f}));
+//        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, lightCoeff);
 
-        gl.glRotated(xTurnCur - xTurnPrev, 1, 0, 0);
-        gl.glRotated(yTurnCur - yTurnPrev, 0, 1, 0);
-        gl.glRotated(zTurnCur - zTurnPrev, 0, 0, 1);
-        xTurnPrev = xTurnCur;
-        yTurnPrev = yTurnCur;
-        zTurnPrev = zTurnCur;
+        //Поворот, передвижение и масштабирование гитары
+        gl.glPushMatrix();
+
+        gl.glRotated(xTurnCur, 1, 0, 0);
+        gl.glRotated(yTurnCur, 0, 1, 0);
+        gl.glRotated(zTurnCur, 0, 0, 1);
+
+        gl.glTranslated(xPoz, yPos, zPos);
+
+        gl.glScaled(xScale, yScale, zScale);
 
         drawBody(gl);
         drawNeck(gl);
@@ -91,6 +115,12 @@ public class MainGLEventsListener implements GLEventListener {
         drawDoorStep(gl);
         drawCylinder(gl, new Point(0, -0.6, 0), 0.1, 0.1);
         drawStrings(gl);
+
+        gl.glPopMatrix();
+
+        if (needCoords) {
+            drawCoords(gl);
+        }
     }
 
     public void reshape(GLAutoDrawable glAutoDrawable, int i, int i1, int i2, int i3) {
@@ -185,13 +215,23 @@ public class MainGLEventsListener implements GLEventListener {
         gl.glEnd();
     }
 
-    private void drawPoly(GL2 gl, Point[] points, double z) {
-//        gl.glBegin(GL2.GL_POLYGON);
-//        for (Point p : points) {
-//            gl.glVertex3d(p.x, p.y, z);
-//        }
-//        gl.glEnd();
+    private void drawCoords(GL2 gl) {
+        gl.glColor3d(1, 0, 0);
+        gl.glLineWidth(2);
+        gl.glBegin(GL2.GL_LINES);
 
+        gl.glVertex3d(0, 0, 0);
+        gl.glVertex3d(1, 0, 0);
+        gl.glVertex3d(0, 0, 0);
+        gl.glVertex3d(0, 1, 0);
+        gl.glVertex3d(0, 0, 0);
+        gl.glVertex3d(0, 0, 1);
+
+        gl.glEnd();
+        gl.glLineWidth(1);
+    }
+
+    private void drawPoly(GL2 gl, Point[] points, double z) {
         Point p0 = points[0];
         for (int i = 1; i < points.length - 1; i++) {
             int j = i + 1;
@@ -240,21 +280,6 @@ public class MainGLEventsListener implements GLEventListener {
     }
 
     private void drawQuads(GL2 gl, Point[] points, double z) {
-//        gl.glBegin(GL2.GL_QUADS);
-////        for(int i = 0; i < points.length; i++) {
-////            int j = i + 1;
-////            if(j >= points.length) {
-////                j = 0;
-////            }
-////
-////            gl.glVertex3d(points[i].x, points[i].y, 0);
-////            gl.glVertex3d(points[i].x, points[i].y, z);
-////            gl.glVertex3d(points[j].x, points[j].y, z);
-////            gl.glVertex3d(points[j].x, points[j].y, 0);
-////        }
-////        gl.glEnd();
-
-
         for(int i = 0; i < points.length; i++) {
             int j = i + 1;
             if (j >= points.length) {
@@ -334,15 +359,59 @@ public class MainGLEventsListener implements GLEventListener {
         this.step = step;
     }
 
-    public void setkConst(float kConst) {
-        this.kConst = kConst;
+    public void setxPoz(double xPoz) {
+        this.xPoz = xPoz;
     }
 
-    public void setkLinear(float kLinear) {
-        this.kLinear = kLinear;
+    public void setyPos(double yPos) {
+        this.yPos = yPos;
     }
 
-    public void setkQuadr(float kQuadr) {
-        this.kQuadr = kQuadr;
+    public void setzPos(double zPos) {
+        this.zPos = zPos;
+    }
+
+    public void setxScale(double xScale) {
+        this.xScale = xScale;
+    }
+
+    public void setyScale(double yScale) {
+        this.yScale = yScale;
+    }
+
+    public void setzScale(double zScale) {
+        this.zScale = zScale;
+    }
+
+    public void setNeedCoords(boolean needCoords) {
+        this.needCoords = needCoords;
+    }
+
+    public void setCamXPos(double camXPos) {
+        this.camXPos = camXPos;
+    }
+
+    public void setCamYPos(double camYPos) {
+        this.camYPos = camYPos;
+    }
+
+    public void setCamZPos(double camZPos) {
+        this.camZPos = camZPos;
+    }
+
+    public void setCamXTurn(double camXTurn) {
+        this.camXTurn = camXTurn;
+    }
+
+    public void setCamYTurn(double camYTurn) {
+        this.camYTurn = camYTurn;
+    }
+
+    public void setCamZTurn(double camZTurn) {
+        this.camZTurn = camZTurn;
+    }
+
+    public void setLightCoeff(float lightCoeff) {
+        this.lightCoeff = lightCoeff;
     }
 }
