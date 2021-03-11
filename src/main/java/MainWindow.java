@@ -94,7 +94,7 @@ public class MainWindow extends JFrame {
         JSlider xScaleSlider = new JSlider(1, 500, 100);
         JSlider yScaleSlider = new JSlider(1, 500, 100);
         JSlider zScaleSlider = new JSlider(1, 500, 100);
-        xPosSlider.addChangeListener((e) -> {
+        xScaleSlider.addChangeListener((e) -> {
             eventsListener.setxScale(xScaleSlider.getValue()/100f);
             gljpanel.display();
         });
@@ -113,28 +113,64 @@ public class MainWindow extends JFrame {
         buttonsPanel.add(new JLabel("Масштаб по z"));
         buttonsPanel.add(zScaleSlider);
 
+        JCheckBox needCoordsCheckBox = new JCheckBox("Включить координатную сетку");
+        needCoordsCheckBox.addChangeListener((e) -> {
+            eventsListener.setNeedCoords(needCoordsCheckBox.isSelected());
+            gljpanel.display();
+        });
+        buttonsPanel.add(needCoordsCheckBox);
 
-//        JSlider kConstSlider = new JSlider(0, 100, 100);
-//        JSlider kLenearSlider = new JSlider(0, 100, 0);
-//        JSlider kQuadrSlider = new JSlider(0, 100, 0);
-//        kConstSlider.addChangeListener((e) -> {
-//            eventsListener.setkConst(kConstSlider.getValue()/100f);
-//            gljpanel.display();
-//        });
-//        kLenearSlider.addChangeListener((e) -> {
-//            eventsListener.setkLinear(kLenearSlider.getValue()/100f);
-//            gljpanel.display();
-//        });
-//        kQuadrSlider.addChangeListener((e) -> {
-//            eventsListener.setkQuadr(kQuadrSlider.getValue()/100f);
-//            gljpanel.display();
-//        });
-//        buttonsPanel.add(new JLabel("Постоянный коэффициент интенсивности"));
-//        buttonsPanel.add(kConstSlider);
-//        buttonsPanel.add(new JLabel("Линейный коэффицикнт интенсивности"));
-//        buttonsPanel.add(kLenearSlider);
-//        buttonsPanel.add(new JLabel("Квадратичный коэффицикнт интенсивности"));
-//        buttonsPanel.add(kQuadrSlider);
+        JSlider camXPosSlider = new JSlider(-100, 100, 0);
+        JSlider camYPosSlider = new JSlider(-100, 100, 0);
+        JSlider camZPosSlider = new JSlider(-100, 100, 0);
+        camXPosSlider.addChangeListener((e) -> {
+            eventsListener.setCamXPos(camXPosSlider.getValue()/100f);
+            gljpanel.display();
+        });
+        camYPosSlider.addChangeListener((e) -> {
+            eventsListener.setCamYPos(camYPosSlider.getValue()/100f);
+            gljpanel.display();
+        });
+        camZPosSlider.addChangeListener((e) -> {
+            eventsListener.setCamZPos(camZPosSlider.getValue()/100f);
+            gljpanel.display();
+        });
+        buttonsPanel.add(new JLabel("Позиция камеры по x"));
+        buttonsPanel.add(camXPosSlider);
+        buttonsPanel.add(new JLabel("Позиция камеры по y"));
+        buttonsPanel.add(camYPosSlider);
+        buttonsPanel.add(new JLabel("Позиция камеры по z"));
+        buttonsPanel.add(camZPosSlider);
+
+        JSlider camXTurnSlider = new JSlider(-180, 180, 0);
+        JSlider camYTurnSlider = new JSlider(-180, 180, 0);
+        JSlider camZTurnSlider = new JSlider(-180, 180, 0);
+        camXTurnSlider.addChangeListener((e) -> {
+            eventsListener.setCamXTurn(camXTurnSlider.getValue());
+            gljpanel.display();
+        });
+        camYTurnSlider.addChangeListener((e) -> {
+            eventsListener.setCamYTurn(camYTurnSlider.getValue());
+            gljpanel.display();
+        });
+        camZTurnSlider.addChangeListener((e) -> {
+            eventsListener.setCamZTurn(camZTurnSlider.getValue());
+            gljpanel.display();
+        });
+        buttonsPanel.add(new JLabel("Поворот камеры по x"));
+        buttonsPanel.add(camXTurnSlider);
+        buttonsPanel.add(new JLabel("Поворот камеры по y"));
+        buttonsPanel.add(camYTurnSlider);
+        buttonsPanel.add(new JLabel("Поворот камеры по z"));
+        buttonsPanel.add(camZTurnSlider);
+
+        JSlider lightCoeffSlider = new JSlider(0, 50, 0);
+        lightCoeffSlider.addChangeListener(e -> {
+            eventsListener.setLightCoeff(lightCoeffSlider.getValue());
+            gljpanel.display();
+        });
+        buttonsPanel.add(new JLabel("Интенсивность освещения"));
+        buttonsPanel.add(lightCoeffSlider);
 
         buttonsPanel.add(Box.createHorizontalStrut(5));
 
