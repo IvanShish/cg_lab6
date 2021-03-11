@@ -37,10 +37,8 @@ public class MainGLEventsListener implements GLEventListener {
     private double camYTurn;
     private double camZTurn;
 
-
-
-
     private boolean needCoords = false;
+    private boolean isLightOn = false;
 
     public void init(GLAutoDrawable glAutoDrawable) {
         allBodyPoints = new Point[]{new Point(-0.3, -1, 0), new Point(0.3, -1, 0), new Point(0.4, -0.8, 0), new Point(0.4, -0.6, 0),
@@ -91,15 +89,16 @@ public class MainGLEventsListener implements GLEventListener {
         gl.glRotated(camZTurn, 0, 0, 1);
         gl.glTranslated(camXPos, camYPos, camZPos);
 
-//        gl.glEnable(GL2.GL_LIGHTING);
-//        gl.glEnable(GL2.GL_LIGHT0);
-//        gl.glEnable(GL2.GL_COLOR_MATERIAL);
-//        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 90.0f);
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{0f, 0f, -1f}));
-//        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, lightCoeff);
+        if (isLightOn) {
+            gl.glEnable(GL2.GL_LIGHTING);
+            gl.glEnable(GL2.GL_LIGHT0);
+            gl.glEnable(GL2.GL_COLOR_MATERIAL);
+            gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, FloatBuffer.wrap(new float[]{lightCoeff, lightCoeff, lightCoeff}));
+        }
 
         //Поворот, передвижение и масштабирование гитары
         gl.glPushMatrix();
+
 
         gl.glRotated(xTurnCur, 1, 0, 0);
         gl.glRotated(yTurnCur, 0, 1, 0);
@@ -121,6 +120,13 @@ public class MainGLEventsListener implements GLEventListener {
         if (needCoords) {
             drawCoords(gl);
         }
+
+        if (isLightOn) {
+            gl.glDisable(GL2.GL_LIGHTING);
+//            gl.glDisable(GL2.GL_LIGHT0);
+//            gl.glDisable(GL2.GL_COLOR_MATERIAL);
+        }
+
     }
 
     public void reshape(GLAutoDrawable glAutoDrawable, int i, int i1, int i2, int i3) {
@@ -413,5 +419,9 @@ public class MainGLEventsListener implements GLEventListener {
 
     public void setLightCoeff(float lightCoeff) {
         this.lightCoeff = lightCoeff;
+    }
+
+    public void setLightOn(boolean lightOn) {
+        isLightOn = lightOn;
     }
 }
