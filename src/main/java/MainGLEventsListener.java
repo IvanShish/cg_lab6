@@ -25,6 +25,20 @@ public class MainGLEventsListener implements GLEventListener {
 
     private double step = 0.0001;
 
+    private double xPoz;
+    private double yPos;
+    private double zPos;
+    private double xPozPrev;
+    private double yPosPrev;
+    private double zPosPrev;
+
+    private double xScale = 1;
+    private double yScale = 1;
+    private double zScale = 1;
+    private double xScalePrev = 1;
+    private double yScalePrev = 1;
+    private double zScalePrev = 1;
+
     private float kConst = 1;
     private float kLinear = 0;
     private float kQuadr = 0;
@@ -69,14 +83,7 @@ public class MainGLEventsListener implements GLEventListener {
             gl.glDisable(GL2.GL_DEPTH_TEST);
         }
 
-        gl.glEnable(GL2.GL_LIGHTING);
-        gl.glEnable(GL2.GL_LIGHT0);
-        gl.glEnable(GL2.GL_COLOR_MATERIAL);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, new float[]{0f, 0f, -1f, 0f}, 0);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, kConst);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, kLinear);
-        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, kQuadr);
-
+        gl.glNormal3d(0, 0, 1);
 
         gl.glRotated(xTurnCur - xTurnPrev, 1, 0, 0);
         gl.glRotated(yTurnCur - yTurnPrev, 0, 1, 0);
@@ -85,12 +92,41 @@ public class MainGLEventsListener implements GLEventListener {
         yTurnPrev = yTurnCur;
         zTurnPrev = zTurnCur;
 
+        gl.glTranslated(xPoz - xPozPrev, yPos - yPosPrev, zPos - zPosPrev);
+        xPozPrev = xPoz;
+        yPosPrev = yPos;
+        zPosPrev = zPos;
+
+        gl.glScaled(xScale/xScalePrev, yScale/yScalePrev, zScale/zScalePrev);
+        xScalePrev = xScale;
+        yScalePrev = yScale;
+        zScalePrev = zScale;
+
+
+
+
+//        gl.glEnable(GL2.GL_LIGHTING);
+//        gl.glEnable(GL2.GL_LIGHT0);
+//        gl.glEnable(GL2.GL_COLOR_MATERIAL);
+//        gl.glEnable(GL2.GL_NORMALIZE);
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, new float[]{0f, 0f, 1f, 0f}, 0);
+////        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, new float[]{1f, 1f, 1f}, 0);
+////        gl.glLightfv(GL2.GL_LIGHT4, GL2.GL_SPOT_DIRECTION, new float[]{0, 0, -1}, 0);
+////        gl.glLightf(GL2.GL_LIGHT4, GL2.GL_SPOT_EXPONENT, kConst * 100);
+//        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, kConst);
+//        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, kLinear);
+//        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, kQuadr);
+
+
+
+
         drawBody(gl);
         drawNeck(gl);
         drawHead(gl);
         drawDoorStep(gl);
         drawCylinder(gl, new Point(0, -0.6, 0), 0.1, 0.1);
         drawStrings(gl);
+
     }
 
     public void reshape(GLAutoDrawable glAutoDrawable, int i, int i1, int i2, int i3) {
@@ -344,5 +380,29 @@ public class MainGLEventsListener implements GLEventListener {
 
     public void setkQuadr(float kQuadr) {
         this.kQuadr = kQuadr;
+    }
+
+    public void setxPoz(double xPoz) {
+        this.xPoz = xPoz;
+    }
+
+    public void setyPos(double yPos) {
+        this.yPos = yPos;
+    }
+
+    public void setzPos(double zPos) {
+        this.zPos = zPos;
+    }
+
+    public void setxScale(double xScale) {
+        this.xScale = xScale;
+    }
+
+    public void setyScale(double yScale) {
+        this.yScale = yScale;
+    }
+
+    public void setzScale(double zScale) {
+        this.zScale = zScale;
     }
 }
