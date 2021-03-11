@@ -68,6 +68,28 @@ public class MainWindow extends JFrame {
         buttonsPanel.add(new JLabel("Мелкость разбиения"));
         buttonsPanel.add(stepSizeSlider);
 
+        JSlider kConstSlider = new JSlider(0, 100, 100);
+        JSlider kLenearSlider = new JSlider(0, 100, 0);
+        JSlider kQuadrSlider = new JSlider(0, 100, 0);
+        kConstSlider.addChangeListener((e) -> {
+            eventsListener.setkConst(kConstSlider.getValue());
+            gljpanel.display();
+        });
+        kLenearSlider.addChangeListener((e) -> {
+            eventsListener.setkLinear(kLenearSlider.getValue());
+            gljpanel.display();
+        });
+        kQuadrSlider.addChangeListener((e) -> {
+            eventsListener.setkQuadr(kQuadrSlider.getValue());
+            gljpanel.display();
+        });
+        buttonsPanel.add(new JLabel("Постоянный коэффициент интенсивности"));
+        buttonsPanel.add(kConstSlider);
+        buttonsPanel.add(new JLabel("Линейный коэффицикнт интенсивности"));
+        buttonsPanel.add(kLenearSlider);
+        buttonsPanel.add(new JLabel("Квадратичный коэффицикнт интенсивности"));
+        buttonsPanel.add(kQuadrSlider);
+
         buttonsPanel.add(Box.createHorizontalStrut(5));
 
         this.getContentPane().add(grid);

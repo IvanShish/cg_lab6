@@ -25,6 +25,10 @@ public class MainGLEventsListener implements GLEventListener {
 
     private double step = 0.0001;
 
+    private float kConst = 1;
+    private float kLinear = 0;
+    private float kQuadr = 0;
+
     public void init(GLAutoDrawable glAutoDrawable) {
         allBodyPoints = new Point[]{new Point(-0.3, -1, 0), new Point(0.3, -1, 0), new Point(0.4, -0.8, 0), new Point(0.4, -0.6, 0),
                 new Point(0.3, -0.4, 0), new Point(0.2, -0.3, 0), new Point(0.25, -0.2, 0), new Point(0.25, -0.1, 0), new Point(0.2, 0, 0),
@@ -64,6 +68,15 @@ public class MainGLEventsListener implements GLEventListener {
         } else {
             gl.glDisable(GL2.GL_DEPTH_TEST);
         }
+
+        gl.glEnable(GL2.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT0);
+        gl.glEnable(GL2.GL_COLOR_MATERIAL);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, new float[]{0f, 0f, -1f, 0f}, 0);
+        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, kConst);
+        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, kLinear);
+        gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, kQuadr);
+
 
         gl.glRotated(xTurnCur - xTurnPrev, 1, 0, 0);
         gl.glRotated(yTurnCur - yTurnPrev, 0, 1, 0);
@@ -319,5 +332,17 @@ public class MainGLEventsListener implements GLEventListener {
 
     public void setStep(double step) {
         this.step = step;
+    }
+
+    public void setkConst(float kConst) {
+        this.kConst = kConst;
+    }
+
+    public void setkLinear(float kLinear) {
+        this.kLinear = kLinear;
+    }
+
+    public void setkQuadr(float kQuadr) {
+        this.kQuadr = kQuadr;
     }
 }
