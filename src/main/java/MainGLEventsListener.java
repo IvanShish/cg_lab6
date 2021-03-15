@@ -2,6 +2,7 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.glu.GLU;
 
 import java.nio.FloatBuffer;
 
@@ -15,6 +16,7 @@ public class MainGLEventsListener implements GLEventListener {
     private Point[] headPoints;
     private Point[] doorstepPoints;
     private Point[][] stringsPoints;
+    private Point[] surfacePoints;
 
     private double step = 0.0001;
     private boolean isDepthTestOn = true;
@@ -39,6 +41,21 @@ public class MainGLEventsListener implements GLEventListener {
 
     private boolean needCoords = false;
     private boolean isLightOn = false;
+    private int projection = 0;
+    // LIGHT
+    private int light = GL2.GL_LIGHT0;
+    private int lightType = 0;
+    private float constant;
+    private float linear;
+    private float quadratic;
+    private float brightness;
+    private float angle;
+    private float exponent;
+    // MATERIAL
+    private float ambient;
+    private float shininess;
+    private float specular;
+    private float emission;
 
     public void init(GLAutoDrawable glAutoDrawable) {
         allBodyPoints = new Point[]{new Point(-0.3, -1, 0), new Point(0.3, -1, 0), new Point(0.4, -0.8, 0), new Point(0.4, -0.6, 0),
@@ -65,6 +82,8 @@ public class MainGLEventsListener implements GLEventListener {
                 new Point[]{new Point(0, 1, 0), new Point(0, -0.8, 0)},
                 new Point[]{new Point(0.02, 1, 0), new Point(0.02, -0.8, 0)},
                 new Point[]{new Point(0.04, 1, 0), new Point(0.04, -0.8, 0)}};
+
+        surfacePoints = new Point[]{new Point(1, -1, 1), new Point(-1, -1, 1), new Point(-1, -1, -1), new Point(1, -1, -1)};
     }
 
     public void dispose(GLAutoDrawable glAutoDrawable) {
@@ -73,10 +92,33 @@ public class MainGLEventsListener implements GLEventListener {
 
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-
-        gl.glLoadIdentity();
+        GLU glu = new GLU();
 
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
+        if (projection == 0) {
+            /* ортографическая проекция */
+            gl.glMatrixMode(gl.GL_PROJECTION);
+            gl.glLoadIdentity();
+            gl.glMatrixMode(gl.GL_MODELVIEW);
+            gl.glLoadIdentity();
+            gl.glOrtho(-1, -1, -1, 1, 1, 1);
+//            gl.glOrtho(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5);
+        }
+        else {
+            gl.glMatrixMode(gl.GL_PROJECTION);
+            gl.glLoadIdentity();
+            glu.gluPerspective(90, 1, 0.5, 50);
+
+            gl.glMatrixMode(gl.GL_MODELVIEW);
+            gl.glLoadIdentity();
+            glu.gluLookAt(
+                    0, 0, -1, // eye - положение камеры
+                    0, 0, 0, // at - положение цели, на которую смотрим
+                    0, 1, 0 // up - вектор направления вверх камеры
+            );
+        }
+
         if (isDepthTestOn) {
             gl.glEnable(GL2.GL_DEPTH_TEST);
         } else {
@@ -89,22 +131,45 @@ public class MainGLEventsListener implements GLEventListener {
         gl.glRotated(camZTurn, 0, 0, 1);
         gl.glTranslated(camXPos, camYPos, camZPos);
 
+        gl.glScaled(0.7, 0.7, 0.7);
+
         if (isLightOn) {
             gl.glEnable(GL2.GL_LIGHTING);
-            gl.glEnable(GL2.GL_LIGHT0);
+            gl.glEnable(light);
             gl.glEnable(GL2.GL_COLOR_MATERIAL);
-            gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, FloatBuffer.wrap(new float[]{lightCoeff, lightCoeff, lightCoeff}));
+            gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, FloatBuffer.wrap(new float[]{1, 0, 1, brightness}));
+
+            gl.glLightfv(gl.GL_LIGHT1, gl.GL_POSITION, FloatBuffer.wrap(new float[]{1, 0, 1, brightness}));
+            gl.glLightfv(gl.GL_LIGHT1, gl.GL_DIFFUSE, FloatBuffer.wrap(new float[]{1, 1, 1, 1}));
+            gl.glLightfv(gl.GL_LIGHT1, gl.GL_SPECULAR, FloatBuffer.wrap(new float[]{1, 1, 1, 1}));
+            gl.glLightf(gl.GL_LIGHT1, gl.GL_CONSTANT_ATTENUATION, constant);
+            gl.glLightf(gl.GL_LIGHT1, gl.GL_LINEAR_ATTENUATION, linear);
+            gl.glLightf(gl.GL_LIGHT1, gl.GL_QUADRATIC_ATTENUATION, quadratic);
+
+            gl.glLightfv(gl.GL_LIGHT2, gl.GL_DIFFUSE, FloatBuffer.wrap(new float[]{1, 1, 1, 1}));
+            gl.glLightfv(gl.GL_LIGHT2, gl.GL_SPECULAR, FloatBuffer.wrap(new float[]{1, 1, 1, 1}));
+            gl.glLightf(gl.GL_LIGHT2, gl.GL_SPOT_CUTOFF, angle);// угол пропускания
+            gl.glLightf(gl.GL_LIGHT2, gl.GL_SPOT_EXPONENT, exponent);// значение Е
+            gl.glLightfv(gl.GL_LIGHT2, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{0, 0, -1}));
+
+            gl.glColorMaterial(gl.GL_FRONT, gl.GL_DIFFUSE);
+            gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_SHININESS);
+//            gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT);
+            gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_SHININESS, FloatBuffer.wrap(new float[]{shininess})); // от 0 до 128, степень зеркального отражения материала
+            gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_SPECULAR, FloatBuffer.wrap(new float[]{specular, specular, specular, 1})); // цвет зеркального отражения
+//            gl.glMaterialfv(gl.GL_FRONT, gl.GL_DIFFUSE, FloatBuffer.wrap(new float[]{diffuse, diffuse, diffuse, 1})); // цвет диффузного отражения
+            gl.glMaterialfv(gl.GL_FRONT, gl.GL_AMBIENT, FloatBuffer.wrap(new float[]{ambient, ambient, ambient, 1})); // цвет материала в тени
         }
 
         //Поворот, передвижение и масштабирование гитары
         gl.glPushMatrix();
 
 
-        gl.glRotated(xTurnCur, 1, 0, 0);
-        gl.glRotated(yTurnCur, 0, 1, 0);
-        gl.glRotated(zTurnCur, 0, 0, 1);
-
-        gl.glTranslated(xPoz, yPos, zPos);
+//        gl.glRotated(xTurnCur, 1, 0, 0);
+//        gl.glRotated(yTurnCur, 0, 1, 0);
+//        gl.glRotated(zTurnCur, 0, 0, 1);
+//
+//        gl.glTranslated(xPoz, yPos, zPos);
 
         gl.glScaled(xScale, yScale, zScale);
 
@@ -115,16 +180,17 @@ public class MainGLEventsListener implements GLEventListener {
         drawCylinder(gl, new Point(0, -0.6, 0), 0.1, 0.1);
         drawStrings(gl);
 
+        drawSurface(gl);
         gl.glPopMatrix();
+//
+//        if (needCoords) {
+//            drawCoords(gl);
+//        }
 
-        if (needCoords) {
-            drawCoords(gl);
-        }
 
         if (isLightOn) {
             gl.glDisable(GL2.GL_LIGHTING);
-//            gl.glDisable(GL2.GL_LIGHT0);
-//            gl.glDisable(GL2.GL_COLOR_MATERIAL);
+            gl.glDisable(light);
         }
 
     }
@@ -235,6 +301,17 @@ public class MainGLEventsListener implements GLEventListener {
 
         gl.glEnd();
         gl.glLineWidth(1);
+    }
+
+    private void drawSurface(GL2 gl) {
+        gl.glColor3d(0.2, 0.2, 0.2);
+
+        gl.glBegin(gl.GL_POLYGON);
+        for (Point p : surfacePoints){
+            gl.glVertex3d(p.x, p.y, p.z);
+        }
+
+        gl.glEnd();
     }
 
     private void drawPoly(GL2 gl, Point[] points, double z) {
@@ -423,5 +500,57 @@ public class MainGLEventsListener implements GLEventListener {
 
     public void setLightOn(boolean lightOn) {
         isLightOn = lightOn;
+    }
+
+    public void setProjection(int projection) {
+        this.projection = projection;
+    }
+
+    public void setLight(int light) {
+        this.light = light;
+    }
+
+    public void setLightType(int lightT) {
+        lightType = lightT;
+    }
+
+    public void setConstant(float c) {
+        constant = c;
+    }
+
+    public void setLinear(float l) {
+        linear = l;
+    }
+
+    public void setQuadratic(float q) {
+        quadratic = q;
+    }
+
+    public void setBrightness(float b) {
+        brightness = b;
+    }
+
+    public void setAngle(float angle) {
+        this.angle = angle;
+    }
+
+    public void setExponent(float ex) {
+        this.exponent = ex;
+    }
+
+    public void setAmbient(float ambient) {
+        this.ambient = ambient;
+    }
+
+    public void setShininess(float shininess) {
+        this.shininess = shininess;
+    }
+
+    public void setSpecular(float specular) {
+        this.specular = specular;
+    }
+
+    public void setEmission(float emission) {
+        this.emission = emission;
     }
 }
