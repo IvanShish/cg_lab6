@@ -45,17 +45,23 @@ public class MainGLEventsListener implements GLEventListener {
     // LIGHT
     private int light = GL2.GL_LIGHT0;
     private int lightType = 0;
-    private float constant;
+    private float constant = 1;
     private float linear;
     private float quadratic;
-    private float brightness;
-    private float angle;
-    private float exponent;
+    private float brightness = 1;
+    private float angle = 90;
+    private float exponent = 1;
     // MATERIAL
-    private float ambient;
+    private float ambient = 0.2f;
     private float shininess;
     private float specular;
     private float emission;
+    private float diffuse;
+
+    //model
+    private int isLocalViewer = 0;
+    private int isTwoSide = 0;
+    private int colorControl = GL2.GL_SINGLE_COLOR;
 
     public void init(GLAutoDrawable glAutoDrawable) {
         allBodyPoints = new Point[]{new Point(-0.3, -1, 0), new Point(0.3, -1, 0), new Point(0.4, -0.8, 0), new Point(0.4, -0.6, 0),
@@ -153,12 +159,22 @@ public class MainGLEventsListener implements GLEventListener {
             gl.glLightfv(gl.GL_LIGHT2, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{0, 0, -1}));
 
             gl.glColorMaterial(gl.GL_FRONT, gl.GL_DIFFUSE);
-            gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_SHININESS);
+//            gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_SHININESS);
+//            gl.glColorMaterial(gl.GL_FRONT, gl.GL_EMISSION);
 //            gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT);
             gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_SHININESS, FloatBuffer.wrap(new float[]{shininess})); // от 0 до 128, степень зеркального отражения материала
             gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_SPECULAR, FloatBuffer.wrap(new float[]{specular, specular, specular, 1})); // цвет зеркального отражения
 //            gl.glMaterialfv(gl.GL_FRONT, gl.GL_DIFFUSE, FloatBuffer.wrap(new float[]{diffuse, diffuse, diffuse, 1})); // цвет диффузного отражения
             gl.glMaterialfv(gl.GL_FRONT, gl.GL_AMBIENT, FloatBuffer.wrap(new float[]{ambient, ambient, ambient, 1})); // цвет материала в тени
+            gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[]{emission, emission, emission, 1}));
+
+
+            //модель освещения
+            gl.glEnable(GL2.GL_NORMALIZE);
+            gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, isLocalViewer);
+            gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, isTwoSide);
+            gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, colorControl);
+
         }
 
         //Поворот, передвижение и масштабирование гитары
@@ -552,5 +568,21 @@ public class MainGLEventsListener implements GLEventListener {
 
     public void setEmission(float emission) {
         this.emission = emission;
+    }
+
+    public void setIsLocalViewer(int isLocalViewer) {
+        this.isLocalViewer = isLocalViewer;
+    }
+
+    public void setIsTwoSide(int isTwoSide) {
+        this.isTwoSide = isTwoSide;
+    }
+
+    public void setColorControl(int colorControl) {
+        this.colorControl = colorControl;
+    }
+
+    public void setDiffuse(float diffuse) {
+        this.diffuse = diffuse;
     }
 }

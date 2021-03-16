@@ -1,3 +1,4 @@
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
@@ -23,7 +24,7 @@ public class MainWindow extends JFrame {
         GLJPanel gljpanel = new GLJPanel(capabilities);
         MainGLEventsListener eventsListener = new MainGLEventsListener();
         gljpanel.addGLEventListener(eventsListener);
-        gljpanel.setSize(750, 750);
+        gljpanel.setSize(850, 850);
         grid.add(gljpanel);
 
         //panel with buttons
@@ -229,7 +230,7 @@ public class MainWindow extends JFrame {
 //        buttonsPanel.add(point);
 //        buttonsPanel.add(spotlight);
 
-        JSlider bright = new JSlider(0, 200, 0);
+        JSlider bright = new JSlider(0, 200, 100);
         JSlider constant = new JSlider(0, 100, 100);
         JSlider linear = new JSlider(0, 100, 0);
         JSlider quadratic = new JSlider(0, 100, 0);
@@ -279,6 +280,7 @@ public class MainWindow extends JFrame {
         JSlider shininess = new JSlider(0, 128, 0);
         JSlider specular = new JSlider(0, 100, 0);
         JSlider emission = new JSlider(0, 100, 0);
+        JSlider diffuse = new JSlider(0, 100, 0);
         ambient.addChangeListener((e) -> {
             eventsListener.setAmbient(ambient.getValue() / 100f);
             gljpanel.display();
@@ -295,6 +297,10 @@ public class MainWindow extends JFrame {
             eventsListener.setEmission(emission.getValue() / 100f);
             gljpanel.display();
         });
+        diffuse.addChangeListener(e -> {
+            eventsListener.setDiffuse(diffuse.getValue()/100);
+            gljpanel.display();
+        });
         buttonsPanel.add(new JLabel("GL_AMBIENT"));
         buttonsPanel.add(ambient);
         buttonsPanel.add(new JLabel("GL_SHININESS"));
@@ -303,11 +309,48 @@ public class MainWindow extends JFrame {
         buttonsPanel.add(specular);
         buttonsPanel.add(new JLabel("GL_EMISSION"));
         buttonsPanel.add(emission);
+        buttonsPanel.add(new JLabel("GL_DIFFUSE"));
+        buttonsPanel.add(diffuse);
+
+
+        JCheckBox isLocalViewer = new JCheckBox("GL_LIGHT_MODEL_LOCAL_VIEWER");
+        JCheckBox isTwoSide = new JCheckBox("GL_LIGHT_MODEL_TWO_SIDE");
+        JCheckBox colorControl = new JCheckBox("GL_LIGHT_MODEL_COLOR_CONTROL");
+        isLocalViewer.addActionListener(v -> {
+            if (isLocalViewer.isSelected()) {
+                eventsListener.setIsLocalViewer(1);
+            } else {
+                eventsListener.setIsLocalViewer(0);
+            }
+            gljpanel.display();
+        });
+        isTwoSide.addActionListener(v -> {
+            if (isTwoSide.isSelected()) {
+                eventsListener.setIsTwoSide(1);
+            } else {
+                eventsListener.setIsTwoSide(0);
+            }
+            gljpanel.display();
+        });
+        colorControl.addActionListener(e -> {
+            if (isTwoSide.isSelected()) {
+                eventsListener.setColorControl(GL2.GL_SEPARATE_SPECULAR_COLOR);
+            } else {
+                eventsListener.setColorControl(GL2.GL_SINGLE_COLOR);
+            }
+            gljpanel.display();
+        });
+        buttonsPanel.add(new JLabel("Модель"));
+        buttonsPanel.add(isLocalViewer);
+        buttonsPanel.add(isTwoSide);
+//        buttonsPanel.add(colorControl);
+
+
 
         buttonsPanel.add(Box.createHorizontalStrut(5));
 
         this.getContentPane().add(grid);
-        this.setSize(1500, 750);
+        this.setSize(1700, 850);
         this.setVisible(true);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
